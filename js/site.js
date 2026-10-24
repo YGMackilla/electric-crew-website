@@ -1,6 +1,6 @@
 // Shared header, footer, theme toggle and small helpers. Edit LINKS and NAV once; every page updates.
 export const LINKS = {
-  discord: "https://discord.gg/Eht4n2Uye",
+  discord: "https://discord.gg/uubT9dKxT",
   instagram: "https://instagram.com/electriccrewlgbtq",
   vrchat: "https://vrc.group/ELCREW.6140",
   trevor: "https://www.thetrevorproject.org",
