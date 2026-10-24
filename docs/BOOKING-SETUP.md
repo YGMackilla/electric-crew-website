@@ -5,7 +5,7 @@ Two parts, one shared database:
 | Part | What it does | Where it runs |
 |---|---|---|
 | `bot/` | Discord bot. `/event create` asks for name, info, VRChat world, date, then **what time slots you need**, then posts the event with one button per slot. DJs click a slot → "Thanks, you're booked for …". The post updates live. | A small Node host (Railway, Render, Fly, a VPS, or your own PC) |
-| `web/bookings.html` | Website page. Shows the same events live (times in the visitor's own time zone, picker to switch), lets people book from the site too, and keeps every past event as an archive. | Your Manus-hosted site — add it as a page `/bookings` |
+| `bookings.html` | Website page. Shows the same events live (times in the visitor's own time zone, picker to switch), lets people book from the site too, and keeps every past event as an archive. | This repo's GitHub Pages site |
 | `firestore.rules` | Security rules for the shared database. | Firebase console |
 
 Bookings made in Discord appear on the site instantly; bookings made on the site update the Discord post instantly (the bot listens for changes).
@@ -18,7 +18,7 @@ Bookings made in Discord appear on the site instantly; bookings made on the site
 2. Left menu **Build → Firestore Database → Create database** → choose a region near your crew (e.g. `us-east1`) → start in **production mode**.
 3. Open the **Rules** tab, replace everything with the contents of `firestore.rules`, click **Publish**.
 4. **Project settings (gear) → General → Your apps → `</>` Web** → register app (name: `website`) → copy the `firebaseConfig` block.
-   Paste its values into the `FIREBASE_CONFIG` object at the top of `web/bookings.html`.
+   Paste its values into `js/firebase-config.js` (already done for this project).
 5. **Project settings → Service accounts → Generate new private key** → download the JSON → save it as `bot/serviceAccount.json`. **Keep this file private** (it's the bot's master key).
 
 ## 2. Discord bot
@@ -42,11 +42,11 @@ Bookings made in Discord appear on the site instantly; bookings made on the site
 - Clicking your own slot again unbooks you. One slot per DJ per event.
 - `/event list` — upcoming events and open slots. `/event unbook event_id slot` and `/event cancel event_id` — organizers only (event ID is in the post footer).
 
-## 3. Website page (Manus)
+## 3. Website
 
-Give Manus the file `web/bookings.html` and ask it to add it as a new page at `/bookings` and put a **"Book a DJ slot"** button in the nav/hero linking to it. It is a single self-contained file — no build step, no server code. (If Manus wraps it in the site's layout, keep the whole `<script type="module">` block intact.)
+The booking page is `bookings.html` in this repo and is already live. It reads the same Firestore database as the bot, so there is nothing to add by hand. Firebase is connected in `js/firebase-config.js`.
 
-Optional: set `DISCORD_WEBHOOK` in that file to post a note when someone books from the website (Server Settings → Integrations → Webhooks). Anyone can read a webhook URL from page source, so use a channel you don't mind getting spammed in, and rotate it if abused.
+Optional: set `DISCORD_WEBHOOK` in `js/firebase-config.js` to post a note when someone books from the website (Server Settings → Integrations → Webhooks). Anyone can read a webhook URL from page source, so use a channel you don't mind getting spammed in, and rotate it if abused.
 
 ## Notes
 - Max 25 slots per event (Discord's button limit).
