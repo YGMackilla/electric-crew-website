@@ -1,12 +1,12 @@
-// Paste your Firebase web app config here (Firebase console > Project settings > Your apps > Web app > Config).
-// While the values say PASTE_ME the site runs in demo mode with sample events that live only in the visitor's browser.
+// Firebase web app config for the electric-crew-bookings project. This key is meant to be public; the Firestore rules are what protect the data.
+// If any value says PASTE_ME the site falls back to demo mode with sample events.
 export const FIREBASE_CONFIG = {
-  apiKey: "PASTE_ME",
-  authDomain: "PASTE_ME.firebaseapp.com",
-  projectId: "PASTE_ME",
-  storageBucket: "PASTE_ME.appspot.com",
-  messagingSenderId: "PASTE_ME",
-  appId: "PASTE_ME",
+  apiKey: "AIzaSyBCiz6wN05j_Rcvdb8biHA9Or_DQ8O2tgE",
+  authDomain: "electric-crew-bookings.firebaseapp.com",
+  projectId: "electric-crew-bookings",
+  storageBucket: "electric-crew-bookings.firebasestorage.app",
+  messagingSenderId: "164812711222",
+  appId: "1:164812711222:web:29020cf06cd0fc96da3f97",
 };
 // Optional: a Discord webhook URL that gets a note when someone books from the website. Leave "" to disable.
 export const DISCORD_WEBHOOK = "";
