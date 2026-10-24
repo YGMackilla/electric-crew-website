@@ -286,7 +286,8 @@ client.once(Events.ClientReady, (c) => {
   console.log(`Logged in as ${c.user.tag}`);
   events.where("status", "==", "open").onSnapshot(snap => {
     snap.docChanges().forEach(ch => {
-      if (ch.type === "modified") refreshPost({ id: ch.doc.id, ...ch.doc.data() });
+      // "added" fires for every open event when the bot starts, so anything booked while it was offline gets redrawn
+      if (ch.type === "modified" || ch.type === "added") refreshPost({ id: ch.doc.id, ...ch.doc.data() });
     });
   }, err => console.error("snapshot", err));
 });
