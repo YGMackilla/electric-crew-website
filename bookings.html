@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>DJ Booking · Electric Crew LGBTQ</title>
+<meta name="description" content="Live DJ set-slot booking for Electric Crew LGBTQ events in VRChat.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="page-hero"><div class="wrap">
+    <span class="eyebrow">For DJs</span>
+    <h1>Claim your <span class="hl">set slot</span></h1>
+    <p class="lede">Pick an open slot on any upcoming event. Bookings made here and in Discord update instantly on both sides.</p>
+    <div id="demo" class="demo-banner" hidden><span>⚡</span><span><b>Demo mode.</b> These are sample events that only live in your browser. Real events show up here once the booking database is connected.</span></div>
+  </div></section>
+
+  <section class="block" style="padding-top:24px"><div class="wrap stack" style="gap:28px">
+    <div class="tzbar">
+      <p class="mono" style="font-size:.85rem;color:var(--ink-soft)"><span class="live-dot"></span>Live schedule</p>
+      <label class="field">Show times in<select id="tz"></select></label>
+    </div>
+    <div class="stack" id="upcoming"><div class="empty">Loading events…</div></div>
+    <div>
+      <h2 style="font-size:1.4rem;margin-bottom:16px">Past events</h2>
+      <div class="stack" id="past"></div>
+    </div>
+    <p class="notice">Hosts create events in the crew Discord with <span class="mono">/event create</span>. Booked from here or from Discord, the lineup stays in sync.</p>
+  </div></section>
+</main>
+
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="modal">
+    <h3 id="m-title">Book this slot</h3>
+    <p id="m-sub"></p>
+    <label class="field">DJ name, as it should appear on the lineup<input id="m-name" type="text" maxlength="40" autocomplete="off"></label>
+    <label class="field">Discord username, so hosts can reach you (optional)<input id="m-discord" type="text" maxlength="40" autocomplete="off" placeholder="username"></label>
+    <div class="actions"><button class="btn ghost" id="m-cancel" type="button">Cancel</button><button class="btn primary" id="m-ok" type="button">Book it</button></div>
+  </div>
+</div>
+<div class="scrim" id="scrim2" role="dialog" aria-modal="true" aria-labelledby="u-title">
+  <div class="modal">
+    <h3 id="u-title">Remove yourself?</h3>
+    <p id="u-sub">The slot will open up again for other DJs.</p>
+    <div class="actions"><button class="btn ghost" id="u-cancel" type="button">Keep my slot</button><button class="btn dark" id="u-ok" type="button">Unbook me</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+  import { esc, localTz, fmtDate, fmtTime, tzLabel } from "./js/site.js";
+  import { CONFIGURED, subscribe, bookSlot, unbookSlot, isUpcoming, isLive, mine, saveMine } from "./js/booking-data.js";
+
+  document.getElementById("demo").hidden = CONFIGURED;
+  const tzSel = document.getElementById("tz"), here = localTz();
+  const zones = [[here, `My time zone (${here})`], ["America/New_York", "Eastern (US)"], ["America/Chicago", "Central (US)"], ["America/Denver", "Mountain (US)"], ["America/Los_Angeles", "Pacific (US)"], ["UTC", "UTC"], ["Europe/London", "London"], ["Europe/Berlin", "Central Europe"], ["Australia/Sydney", "Sydney"], ["Asia/Tokyo", "Tokyo"]];
+  zones.forEach(([v, l], i) => { if (i === 0 || v !== here) tzSel.insertAdjacentHTML("beforeend", `<option value="${esc(v)}">${esc(l)}</option>`); });
+  let tz = here; try { tz = localStorage.getItem("ec_tz") || here; } catch (e) {}
+  tzSel.value = tz; if (tzSel.value !== tz) { tz = here; tzSel.value = tz; }
+  tzSel.addEventListener("change", () => { tz = tzSel.value; try { localStorage.setItem("ec_tz", tz); } catch (e) {} draw(); });
+
+  const linkify = (s) => esc(s).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  let EVENTS = [], failed = null;
+  let pending = null, pendingUn = null, toastT;
+  subscribe((list, err) => { if (err) failed = err; else { EVENTS = list; failed = null; } draw(); });
+
+
+  function draw() {
+    const up = document.getElementById("upcoming"), past = document.getElementById("past");
+    if (failed) { up.innerHTML = `<div class="empty">Couldn't load events right now. Please try again in a moment.</div>`; return; }
+    const now = Date.now();
+    const U = EVENTS.filter((e) => isUpcoming(e, now)).sort((a, b) => a.start - b.start);
+    const P = EVENTS.filter((e) => !isUpcoming(e, now)).sort((a, b) => b.start - a.start);
+    up.innerHTML = U.length ? U.map((e) => card(e, false)).join("") : `<div class="empty"><b style="color:var(--ink)">No upcoming events yet.</b><br>Check back soon, or ask a host to run <span class="mono">/event create</span> in Discord.</div>`;
+    past.innerHTML = P.length ? P.map((e) => card(e, true)).join("") : `<div class="empty">Past events will be archived here.</div>`;
+  }
+
+  function card(e, isPast) {
+    const now = Date.now(), live = isLive(e, now), open = e.slots.filter((s) => !s.dj).length;
+    const status = e.status === "cancelled" ? `<span class="tag">Cancelled</span>` : isPast ? `<span class="tag">Finished</span>` : live ? `<span class="tag warn">Live now</span>` : `<span class="tag good">${open} of ${e.slots.length} slots open</span>`;
+    return `<article class="event ${isPast ? "past" : ""}">
+      <div class="ev-top"><h3 class="ev-title">${esc(e.name)}</h3>${status}</div>
+      <div class="ev-when">${esc(fmtDate(e.start, tz))} · ${esc(fmtTime(e.start, tz))} to ${esc(fmtTime(e.end, tz))} ${esc(tzLabel(e.start, tz))}</div>
+      ${e.info ? `<p class="ev-info">${linkify(e.info)}</p>` : ""}
+      <p class="ev-world"><b>World or group:</b> ${linkify(e.world || "To be announced")}</p>
+      <div class="slots">${e.slots.map((s) => slot(e, s, isPast)).join("")}</div>
+    </article>`;
+  }
+
+  function slot(e, s, isPast) {
+    const taken = !!s.dj, isMine = taken && mine[e.id] === s.n;
+    const label = taken ? `${esc(s.dj.name)}${isMine ? " (you)" : ""}` : isPast ? "Not booked" : "Open, tap to book";
+    const btn = `<button type="button" class="slot ${taken ? (isMine ? "mine" : "taken") : "open"}" ${(taken || isPast) ? "disabled" : `data-book="${esc(e.id)}:${s.n}"`}>
+      <span class="n">SLOT ${s.n}</span><span class="time">${esc(fmtTime(s.start, tz))} to ${esc(fmtTime(s.end, tz))}</span><span class="dj">${label}</span></button>`;
+    return `<div class="slot-wrap">${btn}${(isMine && !isPast) ? `<button type="button" class="link-btn" data-unbook="${esc(e.id)}:${s.n}">Unbook me</button>` : ""}</div>`;
+  }
+
+  // ---- modals ----
+  const scrim = document.getElementById("scrim"), scrim2 = document.getElementById("scrim2"), toast = document.getElementById("toast");
+  const show = (html) => { toast.innerHTML = html; toast.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove("show"), 9000); };
+  document.body.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-book]"); if (b) return openBook(...b.dataset.book.split(":"));
+    const u = ev.target.closest("[data-unbook]"); if (u) { pendingUn = u.dataset.unbook.split(":"); scrim2.classList.add("show"); document.getElementById("u-ok").focus(); }
+  });
+  function openBook(id, n) {
+    const e = EVENTS.find((x) => x.id === id), s = e?.slots.find((x) => x.n === +n); if (!e || !s) return;
+    pending = { id, n: +n };
+    document.getElementById("m-sub").textContent = `${e.name}. ${fmtDate(s.start, tz)}, ${fmtTime(s.start, tz)} to ${fmtTime(s.end, tz)} ${tzLabel(s.start, tz)}`;
+    try { document.getElementById("m-name").value = localStorage.getItem("ec_name") || ""; document.getElementById("m-discord").value = localStorage.getItem("ec_discord") || ""; } catch (e2) {}
+    scrim.classList.add("show"); document.getElementById("m-name").focus();
+  }
+  document.getElementById("m-cancel").addEventListener("click", () => { scrim.classList.remove("show"); pending = null; });
+  document.getElementById("u-cancel").addEventListener("click", () => { scrim2.classList.remove("show"); pendingUn = null; });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { scrim.classList.remove("show"); scrim2.classList.remove("show"); } });
+  document.getElementById("m-ok").addEventListener("click", async () => {
+    const name = document.getElementById("m-name").value.trim(), discord = document.getElementById("m-discord").value.trim().replace(/^@/, "");
+    if (!name) { document.getElementById("m-name").focus(); return; }
+    try { localStorage.setItem("ec_name", name); localStorage.setItem("ec_discord", discord); } catch (e) {}
+    const { id, n } = pending; scrim.classList.remove("show"); pending = null;
+    try {
+      const out = await bookSlot(id, n, name, discord);
+      mine[id] = n; saveMine(); draw();
+      show(`<b>You're booked, ${esc(name)}.</b><br>${esc(fmtDate(out.slot.start, tz))}, ${esc(fmtTime(out.slot.start, tz))} to ${esc(fmtTime(out.slot.end, tz))} ${esc(tzLabel(out.slot.start, tz))}<br>${esc(out.e.world || "")}<br><span style="opacity:.75">${esc(out.e.name)}</span>`);
+    } catch (err) { show(`<b>Couldn't book that slot.</b><br>${esc(err.message)}`); }
+  });
+  document.getElementById("u-ok").addEventListener("click", async () => {
+    const [id, n] = pendingUn; scrim2.classList.remove("show"); pendingUn = null;
+    try { await unbookSlot(id, +n); delete mine[id]; saveMine(); draw(); show("You've been removed. The slot is open again."); }
+    catch (err) { show(`<b>Couldn't unbook.</b><br>${esc(err.message)}`); }
+  });
+</script>
+</body></html>

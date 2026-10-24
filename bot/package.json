@@ -1,0 +1,17 @@
+{
+  "name": "electric-crew-booking-bot",
+  "version": "1.0.0",
+  "description": "Discord DJ set-slot booking bot for Electric Crew LGBTQ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "firebase-admin": "^12.6.0"
+  },
+  "engines": { "node": ">=18" }
+}

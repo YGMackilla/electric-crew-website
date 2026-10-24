@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Contact · Electric Crew LGBTQ</title>
+<meta name="description" content="Find the crew in the metaverse or drop us a message.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="page-hero"><div class="wrap">
+    <span class="eyebrow">Get connected</span>
+    <h1>Step into <span class="hl">the crew</span></h1>
+    <p class="lede">The door is always open. Find us in the metaverse, slide into our DMs, or drop us a message. No gatekeeping, just the crew.</p>
+  </div></section>
+  <section class="block" style="padding-top:32px"><div class="wrap"><div class="contact-grid">
+    <div class="stack" style="gap:18px">
+      <span class="eyebrow">Find the crew</span>
+      <h2 style="margin:0">We're in the metaverse</h2>
+      <div class="social-list" id="socials"></div>
+      <div class="support">
+        <h3>♥ Crisis support</h3>
+        <p>The Trevor Project offers free, 24/7 support for LGBTQ+ young people.</p>
+        <p><b>Call:</b> 1-866-488-7386 &nbsp; <b>Text:</b> START to 678-678</p>
+        <p><a class="link-btn" id="trevor" target="_blank" rel="noopener">thetrevorproject.org ↗</a></p>
+        <p style="font-weight:600">You are loved. You belong here.</p>
+      </div>
+    </div>
+    <div class="stack" style="gap:18px" id="msg">
+      <span class="eyebrow">Drop a message</span>
+      <h2 style="margin:0">Slide into our DMs</h2>
+    </div>
+  </div></div></section>
+</main>
+<script type="module">
+  import { LINKS, esc } from "./js/site.js";
+  import { DISCORD_WEBHOOK } from "./js/firebase-config.js";
+  const socials = [
+    ["Discord", "Join the crew chat", LINKS.discord, "discord.gg/Eht4n2Uye"],
+    ["VRChat group", "Nightly hangouts 8:30 PM PST", LINKS.vrchat, "Electric Crew VRC+"],
+    ["Instagram", "Events, reels and community content", LINKS.instagram, "@electriccrewlgbtq"],
+  ];
+  if (LINKS.tiktok) socials.push(["TikTok", "Short-form VR content", LINKS.tiktok, "@electriccrewlgbtq"]);
+  document.getElementById("socials").innerHTML = socials.map(([n, note, h, handle]) => `<a href="${h}" target="_blank" rel="noopener"><div><b>${esc(n)}</b><span>${esc(handle)}</span></div><span>${esc(note)} ↗</span></a>`).join("");
+  document.getElementById("trevor").href = LINKS.trevor;
+
+  const box = document.getElementById("msg");
+  if (!DISCORD_WEBHOOK) {
+    box.insertAdjacentHTML("beforeend", `<p style="color:var(--ink-soft);margin:0">The quickest way to reach a host is Discord or Instagram. Say hi in the server or send us a DM and someone from the crew will get back to you.</p>
+      <div class="row"><a class="btn primary" href="${LINKS.discord}" target="_blank" rel="noopener">Open Discord</a><a class="btn ghost" href="${LINKS.instagram}" target="_blank" rel="noopener">DM on Instagram</a></div>`);
+  } else {
+    box.insertAdjacentHTML("beforeend", `<form class="form" id="f" novalidate>
+      <label class="field">Your name or handle<input type="text" name="name" maxlength="60" required placeholder="What do we call you in the metaverse?"></label>
+      <label class="field">Email, or Discord handle (so we can reply)<input type="text" name="reply" maxlength="120" required placeholder="you@example.com"></label>
+      <label class="field">What's on your mind?<textarea name="msg" maxlength="1500" required placeholder="Collab ideas, questions, just saying hi. We're here for it."></textarea></label>
+      <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <button class="btn primary" type="submit" style="justify-self:start">Send it ⚡</button>
+      <p id="status" role="status" style="margin:0;color:var(--ink-soft)"></p></form>`);
+    const f = document.getElementById("f"), st = document.getElementById("status");
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault(); const d = Object.fromEntries(new FormData(f));
+      if (d.website) return;
+      if (!d.name.trim() || !d.reply.trim() || !d.msg.trim()) { st.textContent = "Please fill in all three fields."; return; }
+      st.textContent = "Sending…"; f.querySelector("button").disabled = true;
+      const clean = (s, n) => String(s).replace(/[\r\n]+/g, " ").replace(/@(everyone|here)/gi, "@ $1").slice(0, n);
+      try {
+        const r = await fetch(DISCORD_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ allowed_mentions: { parse: [] }, content: `**Website message**\nFrom: ${clean(d.name, 60)}\nReply to: ${clean(d.reply, 120)}\n${String(d.msg).replace(/@(everyone|here)/gi, "@ $1").slice(0, 1500)}` }) });
+        if (!r.ok) throw new Error();
+        f.reset(); st.textContent = "Message received. We'll hit you back soon. Stay weird, stay electric."; 
+      } catch (err) { st.textContent = "That didn't go through. Please message us on Discord instead."; }
+      f.querySelector("button").disabled = false;
+    });
+  }
+</script>
+</body></html>

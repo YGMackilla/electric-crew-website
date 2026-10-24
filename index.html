@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Electric Crew LGBTQ</title>
+<meta name="description" content="An 18+ LGBTQIA+ and allies VR community on VRChat. Nightly hangouts, community nights, DJ sets and Pride events.">
+<meta property="og:title" content="Electric Crew LGBTQ"><meta property="og:description" content="Queer. Fierce. United. An 18+ LGBTQIA+ and allies community in VRChat."><meta property="og:image" content="assets/banner-100.webp">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="hero"><div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">18+ LGBTQIA+ and allies VR community</span>
+      <h1>Queer. Fierce. <span class="hl">United.</span></h1>
+      <p class="lede">Electric Crew is a home in VRChat for hangouts, game nights, DJ sets and Pride events. Come as you are. Stay for the people.</p>
+      <div class="hero-actions">
+        <a class="btn primary" id="cta-discord" target="_blank" rel="noopener">Join the Discord</a>
+        <a class="btn ghost" href="events.html">See events</a>
+        <a class="btn ghost" href="bookings.html">Book a DJ set</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="plate"><img src="assets/logo-full.webp" alt="Electric Crew LGBTQIA+ logo with a VR headset and a rainbow lightning bolt" width="600" height="600"></div>
+      <div class="chip">8:30 PM PST · every night</div>
+    </div>
+  </div></section>
+
+  <section class="block" style="padding-top:8px"><div class="wrap">
+    <div class="facts">
+      <div class="fact"><b>Every night</b><span>Hangouts at 8:30 PM PST</span></div>
+      <div class="fact"><b>4 nights</b><span>Movie, gaming, rave and karaoke</span></div>
+      <div class="fact"><b>18+</b><span>Adult safe space, no judgment</span></div>
+      <div class="fact"><b>VRChat</b><span>Search "Electric Crew" in the group finder</span></div>
+    </div>
+  </div></section>
+
+  <section class="block alt"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Community nights</span><h2>Something on most nights of the week</h2><p class="lede">Pick your pace. Dance, sing, watch or just hang out.</p></div>
+    <div class="grid cols-4" id="nights"></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Coming up</span><h2>What's next on the calendar</h2></div>
+    <div class="grid cols-3" id="upcoming"></div>
+    <div class="row" style="margin-top:28px"><a class="btn dark" href="events.html">All events</a><a class="btn ghost" href="bookings.html">DJs: claim a slot</a></div>
+  </div></section>
+
+  <section class="block" style="padding-top:0"><div class="wrap">
+    <div class="join">
+      <div><span class="eyebrow" style="color:var(--volt)">Get electric</span><h2 style="margin-top:12px">Ready to meet the crew?</h2><p>Join the Discord for event updates and crew chat, then hop into the VRChat group for the nightly hangout.</p></div>
+      <div class="links" id="join-links"></div>
+    </div>
+  </div></section>
+</main>
+<script type="module">
+  import { LINKS, esc } from "./js/site.js";
+  import { NIGHTS, RECURRING } from "./js/content.js";
+  document.getElementById("cta-discord").href = LINKS.discord;
+  document.getElementById("nights").innerHTML = NIGHTS.map(n => `
+    <article class="card night" style="--accent:${n.accent}"><div class="band"></div><div class="body">
+      <h3>${esc(n.title)}</h3><p><b style="color:var(--ink)">${esc(n.tagline)}</b></p><p>${esc(n.text)}</p>
+      <span class="when" style="margin-top:auto">${esc(n.when)}</span></div></article>`).join("");
+  document.getElementById("upcoming").innerHTML = RECURRING.map(e => `
+    <article class="card"><span class="tag volt">${esc(e.tag)}</span><h3>${esc(e.title)}</h3><p class="mono" style="font-size:.88rem">${esc(e.when)}</p><p>${esc(e.where)}</p></article>`).join("");
+  document.getElementById("join-links").innerHTML = [
+    ["Discord", "Event updates and crew chat", LINKS.discord], ["VRChat group", "Nightly hangouts", LINKS.vrchat], ["Instagram", "@electriccrewlgbtq", LINKS.instagram],
+  ].map(([a, b, h]) => `<a href="${h}" target="_blank" rel="noopener"><span>${a}</span><small>${b}</small></a>`).join("");
+</script>
+</body></html>

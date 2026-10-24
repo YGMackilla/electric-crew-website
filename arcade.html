@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Arcade · Electric Crew LGBTQ</title>
+<meta name="description" content="Charge the Crew: a 45-second three-lane run. Collect rainbow charge nodes, dodge the void gates, make the crew board.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="page-hero"><div class="wrap">
+    <span class="eyebrow">Electric Crew Arcade</span>
+    <h1>Charge <span class="hl">the crew</span></h1>
+    <p class="lede">Collect rainbow charge nodes, dodge the void gates, and survive the 45-second run to put your name on the crew board.</p>
+  </div></section>
+  <section class="block" style="padding-top:32px"><div class="wrap"><div class="arcade-grid">
+    <div class="stage" id="stage">
+      <canvas id="game" tabindex="0" aria-label="Charge the Crew arcade game"></canvas>
+      <div class="hud" aria-live="polite"><span><b>SCORE</b><i id="h-score" style="font-style:normal">0000</i></span><span><b>SHIELD</b><i id="h-shield" style="font-style:normal">◆◆◆</i></span><span><b>TIME</b><i id="h-time" style="font-style:normal">00:45</i></span></div>
+      <div class="pad"><button type="button" id="left" aria-label="Move left" disabled>←</button><button type="button" id="right" aria-label="Move right" disabled>→</button></div>
+      <div class="overlay" id="ov-ready">
+        <span class="eyebrow">45 second crew run</span>
+        <h2>Ready to<br><span>get electric?</span></h2>
+        <p>Use <b>A / D</b>, the arrow keys, the on-screen buttons, or swipe to change lanes.</p>
+        <button class="btn primary" type="button" id="start">⚡ Start run</button>
+      </div>
+      <div class="overlay" id="ov-done" hidden>
+        <span class="eyebrow" id="d-eyebrow">Run complete</span>
+        <h2>You charged<br><span id="d-score">0000</span></h2>
+        <p id="d-note"></p>
+        <form class="row" id="save" style="flex-direction:column;gap:10px">
+          <input type="text" id="name" maxlength="24" placeholder="Your name or handle" autocomplete="nickname" aria-label="Name for the crew board">
+          <div class="row"><button class="btn primary" type="submit" id="save-btn">Save to board</button><button class="btn ghost" type="button" id="again" style="color:#fff;border-color:rgba(255,255,255,.4)">↻ Play again</button></div>
+        </form>
+      </div>
+    </div>
+    <aside class="card" style="gap:14px">
+      <span class="eyebrow">Top crew</span>
+      <ol class="board" id="board"><li class="none"><span>Loading…</span></li></ol>
+      <p id="board-note" style="margin:0;color:var(--ink-soft);font-size:.88rem"></p>
+      <div><span class="eyebrow">Your best</span><div style="font:800 2.4rem var(--font-display)" id="best">0</div></div>
+      <a class="btn ghost small" href="events.html" style="align-self:flex-start">Back to events</a>
+    </aside>
+  </div></div></section>
+</main>
+<script type="module">
+  import { esc } from "./js/site.js";
+  import { createGame } from "./js/arcade.js";
+  import { CONFIGURED, loadBoard, saveScore, recordRun, myBest, myName } from "./js/arcade-data.js";
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(4, "0");
+  let last = { score: 0, secs: 45 }, saved = false;
+  const setBtns = (on) => { $("left").disabled = !on; $("right").disabled = !on; };
+  const game = createGame($("game"), (ev) => {
+    const p = ev.payload; last = { score: p.score, secs: 45 - p.secondsRemaining };
+    $("h-score").textContent = pad(p.score);
+    $("h-shield").textContent = "◆".repeat(p.shield) + "◇".repeat(3 - p.shield);
+    $("h-time").textContent = "00:" + String(p.secondsRemaining).padStart(2, "0");
+    if (ev.type === "complete") finish();
+  });
+  function run() {
+    saved = false; $("ov-ready").hidden = true; $("ov-done").hidden = true; setBtns(true); game.start();
+  }
+  function finish() {
+    setBtns(false);
+    const scored = last.score > 0;
+    const isBest = recordRun(last.score); $("best").textContent = myBest();
+    $("d-eyebrow").textContent = isBest && scored ? "New personal best" : "Run complete";
+    $("d-score").textContent = pad(last.score);
+    $("d-note").textContent = scored ? "Add your name to put this on the crew board." : "No charge this time. Dodge the purple gates and grab the diamonds.";
+    $("name").style.display = scored ? "" : "none"; $("save-btn").style.display = scored ? "" : "none";
+    $("name").value = myName(); $("save-btn").disabled = false; $("save-btn").textContent = "Save to board";
+    $("ov-done").hidden = false;
+  }
+  async function board() {
+    try {
+      const { shared, rows } = await loadBoard();
+      $("board").innerHTML = rows.length ? rows.map((r, i) => `<li${i === 0 ? ' class="top"' : ""}><strong>${esc(r.name)}</strong><b>${r.score}</b></li>`).join("") : `<li class="none"><span>No scores yet. Be the first to light up the board.</span></li>`;
+      $("board-note").textContent = shared ? "" : (CONFIGURED ? "" : "Preview mode: scores are saved on this device only until the crew board is connected.");
+    } catch (e) { $("board").innerHTML = `<li class="none"><span>Could not load the board right now.</span></li>`; }
+  }
+  $("start").onclick = run; $("again").onclick = run;
+  $("left").onclick = () => game.move(-1); $("right").onclick = () => game.move(1);
+  $("save").onsubmit = async (e) => {
+    e.preventDefault(); if (saved) return;
+    $("save-btn").disabled = true; $("save-btn").textContent = "Saving…";
+    try { await saveScore($("name").value, last.score, last.secs); saved = true; $("save-btn").textContent = "Saved ✓"; board(); }
+    catch (err) { $("save-btn").disabled = false; $("save-btn").textContent = "Save to board"; $("d-note").textContent = err.message || "Could not save. Try again."; }
+  };
+  $("best").textContent = myBest();
+  board();
+</script>
+</body></html>

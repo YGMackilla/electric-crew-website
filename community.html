@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Community · Electric Crew LGBTQ</title>
+<meta name="description" content="Meet the crew, see our nights, and find where to join.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="page-hero"><div class="wrap">
+    <span class="eyebrow">Community</span>
+    <h1>Meet the <span class="hl">crew</span></h1>
+    <p class="lede">The people who build the worlds, host the nights and keep the vibe electric.</p>
+  </div></section>
+
+  <section class="block" style="padding-top:32px"><div class="wrap"><div class="grid cols-3" id="crew"></div></div></section>
+
+  <section class="block alt"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Where we are</span><h2>Three places to find us</h2></div>
+    <div class="grid cols-3" id="places"></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Guidelines</span><h2>How we keep it safe</h2></div>
+    <div class="grid cols-3">
+      <article class="card"><h3>18+ only</h3><p>This is an adult community. You must be 18 or older to join our spaces.</p></article>
+      <article class="card"><h3>Respect everyone</h3><p>No hate, harassment or gatekeeping. Use people's names and pronouns.</p></article>
+      <article class="card"><h3>Ask a host</h3><p>If something feels off, tell a host in Discord or in VRChat and we will step in.</p></article>
+    </div>
+  </div></section>
+</main>
+<script type="module">
+  import { LINKS, esc } from "./js/site.js";
+  import { CREW } from "./js/content.js";
+  document.getElementById("crew").innerHTML = CREW.map(p => `
+    <article class="card person"><div class="avatar" style="--c:${p.c}">${esc(p.name[0])}</div>
+      <h3>${esc(p.name)}</h3><span class="role">${esc(p.role)}</span><p>${esc(p.note)}</p><span class="mono" style="font-size:.82rem;color:var(--ink-soft)">${esc(p.handle)}</span></article>`).join("");
+  document.getElementById("places").innerHTML = [
+    ["VRChat", "Our primary home. Join the VRC+ group for nightly hangouts starting 8:30 PM PST.", LINKS.vrchat, "Join the group"],
+    ["Discord", "Event updates, crew chat and community between VR sessions.", LINKS.discord, "Join Discord"],
+    ["Instagram", "Follow @electriccrewlgbtq for announcements, reels and community content.", LINKS.instagram, "Follow us"],
+  ].map(([t, d, h, c]) => `<a class="card lift" href="${h}" target="_blank" rel="noopener"><h3>${t}</h3><p>${d}</p><span class="btn ghost small" style="align-self:flex-start;margin-top:auto">${c}</span></a>`).join("");
+</script>
+</body></html>

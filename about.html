@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>About · Electric Crew LGBTQ</title>
+<meta name="description" content="How Electric Crew started, what we stand for, and where we are going.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="page-hero"><div class="wrap">
+    <span class="eyebrow">Our story</span>
+    <h1>Built on love, <span class="hl">not perfection</span></h1>
+    <p class="lede">"Electric Avenue started as a passion project and now it's become a safe space to let loose and be free to express your individuality."</p>
+  </div></section>
+
+  <section class="block" style="padding-top:32px"><div class="wrap">
+    <ol class="timeline" id="story"></ol>
+  </div></section>
+
+  <section class="block alt"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">What we stand for</span><h2>Six things we protect</h2></div>
+    <div class="grid cols-3" id="values"></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="card" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px">
+      <div style="max-width:60ch"><h3>Community care</h3><p style="margin-top:8px">We partner with The Trevor Project, the leading crisis support organization for LGBTQ young people. In 2025, clothing sales from YGMackilla raised $550 for them.</p></div>
+      <a class="btn dark" id="trevor" target="_blank" rel="noopener">Visit The Trevor Project</a>
+    </div>
+  </div></section>
+</main>
+<script type="module">
+  import { LINKS, esc } from "./js/site.js";
+  import { STORY, VALUES } from "./js/content.js";
+  document.getElementById("trevor").href = LINKS.trevor;
+  document.getElementById("story").innerHTML = STORY.map(s => `<li><div class="yr">${s.year}</div><div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div></li>`).join("");
+  document.getElementById("values").innerHTML = VALUES.map(v => `<article class="card"><h3>${esc(v.title)}</h3><p>${esc(v.text)}</p></article>`).join("");
+</script>
+</body></html>

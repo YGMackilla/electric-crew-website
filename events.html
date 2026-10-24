@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Events · Electric Crew LGBTQ</title>
+<meta name="description" content="Upcoming Electric Crew events, weekly nights and the history of our Pride celebrations.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe14a">
+<link rel="icon" href="assets/icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+
+</head>
+<body>
+<main id="main">
+  <section class="page-hero"><div class="wrap">
+    <span class="eyebrow">Events</span>
+    <h1>Find your <span class="hl">night</span></h1>
+    <p class="lede">Weekly nights, special events and the history of everything we have thrown together. All times shown in your own time zone.</p>
+  </div></section>
+
+  <section class="block" style="padding-top:24px"><div class="wrap stack" style="gap:24px">
+    <div class="row" style="justify-content:space-between"><h2 style="font-size:1.8rem">Coming up</h2><a class="btn dark small" href="bookings.html">DJ booking</a></div>
+    <div id="demo" class="demo-banner" hidden><span>⚡</span><span><b>Sample events.</b> Real events appear here once the booking database is connected.</span></div>
+    <div class="stack" id="upcoming"><div class="empty">Loading events…</div></div>
+  </div></section>
+
+  <section class="block alt"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Every week</span><h2>Regular nights</h2></div>
+    <div class="grid cols-4" id="nights"></div>
+    <div class="grid cols-3" id="recurring" style="margin-top:22px"></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">History</span><h2>Where we have been</h2><p class="lede">Pride parades, world launches and the fundraiser that started it all.</p></div>
+    <ol class="timeline" id="history"></ol>
+  </div></section>
+</main>
+<script type="module">
+  import { esc, fmtDate, fmtTime, tzLabel, localTz } from "./js/site.js";
+  import { NIGHTS, RECURRING, HISTORY } from "./js/content.js";
+  import { CONFIGURED, subscribe, isUpcoming } from "./js/booking-data.js";
+  document.getElementById("demo").hidden = CONFIGURED;
+  const tz = (() => { try { return localStorage.getItem("ec_tz") || localTz(); } catch (e) { return localTz(); } })();
+
+  subscribe((list, err) => {
+    const el = document.getElementById("upcoming");
+    if (err) { el.innerHTML = `<div class="empty">Couldn't load events right now. Please try again in a moment.</div>`; return; }
+    const U = list.filter((e) => isUpcoming(e)).sort((a, b) => a.start - b.start);
+    el.innerHTML = U.length ? U.map((e) => {
+      const open = e.slots.filter((s) => !s.dj).length;
+      const lineup = e.slots.map((s) => s.dj ? `<span class="chip-dj">${esc(s.dj.name)}</span>` : `<span class="chip-dj open">Open slot</span>`).join("");
+      return `<article class="event">
+        <div class="ev-top"><h3 class="ev-title">${esc(e.name)}</h3><span class="tag good">${open} of ${e.slots.length} DJ slots open</span></div>
+        <div class="ev-when">${esc(fmtDate(e.start, tz))} · ${esc(fmtTime(e.start, tz))} to ${esc(fmtTime(e.end, tz))} ${esc(tzLabel(e.start, tz))}</div>
+        ${e.info ? `<p class="ev-info">${esc(e.info)}</p>` : ""}
+        <p class="ev-world"><b>Where:</b> ${esc(e.world || "To be announced")}</p>
+        <div class="lineup">${lineup}</div>
+        <div><a class="btn primary small" href="bookings.html">${open ? "Claim a DJ slot" : "See the lineup"}</a></div>
+      </article>`;
+    }).join("") : `<div class="empty"><b style="color:var(--ink)">Nothing scheduled right now.</b><br>Join the Discord to hear about new events first.</div>`;
+  });
+
+  document.getElementById("nights").innerHTML = NIGHTS.map((n) => `<article class="card night" style="--accent:${n.accent}"><div class="band"></div><div class="body"><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p><span class="when" style="margin-top:auto">${esc(n.when)}</span></div></article>`).join("");
+  document.getElementById("recurring").innerHTML = RECURRING.map((e) => `<article class="card"><span class="tag volt">${esc(e.tag)}</span><h3>${esc(e.title)}</h3><p class="mono" style="font-size:.88rem">${esc(e.when)}</p><p>${esc(e.where)}</p></article>`).join("");
+  document.getElementById("history").innerHTML = HISTORY.map((h) => `<li><div class="yr">${h.year}</div><div><h3>${esc(h.title)}</h3><p>${esc(h.detail)}</p></div></li>`).join("");
+</script>
+</body></html>
