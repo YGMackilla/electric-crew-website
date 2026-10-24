@@ -20,6 +20,8 @@ const events = db.collection("events");
 // ---------- Discord ----------
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const SITE_URL = process.env.SITE_URL || "";
+// Events are always posted in this channel (#dj-planner), wherever /event create is typed. Set EVENT_CHANNEL_ID="" in .env to post where the command was used.
+const EVENT_CHANNEL_ID = (process.env.EVENT_CHANNEL_ID ?? "1563367054533328926").trim();
 const MAX_SLOTS = 25; // Discord allows 25 buttons per message
 const BRAND = 0xff2d95;
 
@@ -222,6 +224,12 @@ async function handleSlots(i) {
 
   await i.deferReply({ flags: MessageFlags.Ephemeral });
   drafts.delete(draftId);
+  let target = i.channel;
+  if (EVENT_CHANNEL_ID) {
+    try { target = await client.channels.fetch(EVENT_CHANNEL_ID); }
+    catch { return i.editReply("I can't see the #dj-planner channel. Check that the bot can view and send messages there."); }
+  }
+  d.channelId = target.id;
   const ref = events.doc();
   const ev = {
     id: ref.id, name: d.name, info: d.info, world: d.world, tz: d.tz, date: d.date,
@@ -229,10 +237,10 @@ async function handleSlots(i) {
     status: "open", createdBy: d.createdBy, createdByTag: d.createdByTag, createdAt: Date.now(),
     guildId: d.guildId, channelId: d.channelId, messageId: null,
   };
-  const msg = await i.channel.send({ embeds: [buildEmbed(ev)], components: buildButtons(ev) });
+  const msg = await target.send({ embeds: [buildEmbed(ev)], components: buildButtons(ev) });
   ev.messageId = msg.id;
   await ref.set(ev);
-  return i.editReply(`Posted **${ev.name}** with ${slots.length} slots. Event ID \`${ev.id}\` (it's also in the post footer).`);
+  return i.editReply(`Posted **${ev.name}** in <#${target.id}> with ${slots.length} slots. Event ID \`${ev.id}\` (it's also in the post footer).`);
 }
 
 async function handleClaim(i) {
