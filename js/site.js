@@ -50,7 +50,8 @@ function footer() {
     <div><h4>Explore</h4><ul>
       <li><a href="${BASE}events.html">Events</a></li><li><a href="${BASE}bookings.html">DJ booking</a></li>
       <li><a href="${BASE}arcade.html">Arcade</a></li><li><a href="${BASE}community.html">Community</a></li>
-      <li><a href="${BASE}about.html">Our story</a></li><li><a href="${BASE}contact.html">Contact</a></li></ul></div>
+      <li><a href="${BASE}about.html">Our story</a></li><li><a href="${BASE}contact.html">Contact</a></li>
+      <li><a href="${BASE}links.html">All links</a></li></ul></div>
     <div><h4>Find us</h4><ul>
       <li><a href="${LINKS.discord}" target="_blank" rel="noopener">Discord</a></li>
       <li><a href="${LINKS.vrchat}" target="_blank" rel="noopener">VRChat group</a></li>

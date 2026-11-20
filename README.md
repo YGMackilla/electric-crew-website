@@ -2,6 +2,9 @@
 
 A clean, fast, static site (no build step, no server). Pages: Home, Events, DJ Booking, Arcade, Community, About, Contact, Terms, Privacy, and a 404. Every page from the old Manus site is here, at the same address (`/events`, `/arcade`, `/contact`, `/terms`, `/privacy` and so on), plus the new DJ Booking page.
 
+## Links page
+`links.html` is the link-in-bio page for Instagram and other profiles (Discord, website, VRChat, events, DJ booking, Trevor Project, Freddie). Edit the `SECTIONS` list at the bottom of the file to add, remove or reorder links. Paste your full tracking URLs there if you use them (for example the Freddie `utm_` link and the Trevor Project campaign link).
+
 ## Edit content
 - Links (Discord, VRChat group, Instagram, TikTok): `js/site.js`. TikTok is empty because the old site never had a working link; paste the profile URL into `LINKS.tiktok` and it appears in the footer and on Contact.
 - Community nights, regular events, history, crew, story: `js/content.js`
