@@ -28,6 +28,7 @@
 
   <section class="block" id="celestial"><div class="wrap">
     <div class="section-head"><span class="eyebrow">Monthly</span><h2>Celestial Lounge Horoscope DJ Sets</h2><p class="lede">Every first Saturday of the month, we light up Celestial Lounge in VRChat with a sign-of-the-season DJ night. Here is the schedule and set list.</p></div>
+    <div id="cl-feature"></div>
     <div class="grid cols-3" id="cl-list"></div>
     <p class="mono" style="margin-top:18px;font-size:.88rem" id="cl-note"></p>
     <div class="row" style="margin-top:14px;gap:12px"><a class="btn primary small" id="cl-world" href="#" target="_blank" rel="noopener">Open Celestial Lounge</a><a class="btn dark small" href="bookings.html">Book a DJ set</a></div>
@@ -75,13 +76,15 @@
   (() => {
     const C = CELESTIAL, fmt = new Intl.DateTimeFormat(undefined, { timeZone: "UTC", weekday: "long", month: "long", day: "numeric", year: "numeric" });
     document.getElementById("cl-world").href = C.worldUrl;
-    document.getElementById("cl-list").innerHTML = upcomingFirstSaturdays(6).map((d, i) => {
+    const nx = upcomingFirstSaturdays(1)[0], nk = nx.getUTCFullYear() + "-" + String(nx.getUTCMonth() + 1).padStart(2, "0"), dt = C.details[nk];
+    document.getElementById("cl-feature").innerHTML = dt ? `<article class="card" style="display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));align-items:center;margin-bottom:22px">${dt.poster ? `<img src="${esc(dt.poster)}" alt="${esc(dt.title)} poster" loading="lazy" style="width:100%;border-radius:14px;display:block">` : ""}<div><span class="tag good">Next up</span><h3>${esc(dt.title)}</h3><p class="mono" style="font-size:.88rem">${esc(fmt.format(nx))}</p><p>${esc(dt.hours)}</p><p>${esc(dt.genres)}</p><ul class="cl-slots">${C.slots[nk].map((s) => `<li><span class="mono">${esc(s.time)} ${esc(C.tzName)}</span> <b>${esc(s.dj)}</b></li>`).join("")}</ul></div></article>` : "";
+    document.getElementById("cl-list").innerHTML = upcomingFirstSaturdays(7).slice(1).map((d, i) => {
       const key = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0");
       const slots = C.slots[key];
       const list = slots && slots.length
         ? `<ul class="cl-slots">${slots.map((s) => `<li><span class="mono">${esc(s.time)} ${esc(C.tzName)}</span> <b>${esc(s.dj)}</b></li>`).join("")}</ul>`
         : `<p>Lineup and set times announced in Discord.</p>`;
-      return `<article class="card"><span class="tag ${i === 0 ? "good" : "volt"}">${i === 0 ? "Next up" : esc(SEASON_BY_MONTH[d.getUTCMonth()])}</span><h3>${esc(SEASON_BY_MONTH[d.getUTCMonth()])} Season</h3><p class="mono" style="font-size:.88rem">${esc(fmt.format(d))}</p>${list}</article>`;
+      return `<article class="card"><span class="tag volt">${esc(SEASON_BY_MONTH[d.getUTCMonth()])}</span><h3>${esc(SEASON_BY_MONTH[d.getUTCMonth()])} Season</h3><p class="mono" style="font-size:.88rem">${esc(fmt.format(d))}</p>${list}</article>`;
     }).join("");
     document.getElementById("cl-note").textContent = "Where: " + C.world + ". Set times are listed in Eastern Time.";
   })();

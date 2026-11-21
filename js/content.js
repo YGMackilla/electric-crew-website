@@ -52,7 +52,21 @@ export const CELESTIAL = {
   tzName: "ET",
   doors: "",
   slots: {
-    // "2026-12": [{ time: "9:00 PM", dj: "TBA" }, { time: "10:00 PM", dj: "TBA" }],
+    "2026-12": [
+      { time: "11:00 PM", dj: "Bosko" },
+      { time: "12:00 AM", dj: "TheStonedGinger" },
+      { time: "1:00 AM", dj: "Pandatron" },
+      { time: "2:00 AM", dj: "Innco" },
+    ],
+  },
+  // Optional per-month details: title, genres, hours, poster.
+  details: {
+    "2026-12": {
+      title: "Electric Crew: Sagittarius Trance",
+      genres: "Progressive house / DnB / Melodic / Trance",
+      hours: "11 PM to 3 AM EST · 4 x 60 min · PC + Quest",
+      poster: "assets/celestial-dec-2026.webp",
+    },
   },
 };
 export const SIGNS = ["Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius"];
