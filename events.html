@@ -83,7 +83,7 @@
       const slots = C.slots[key];
       const list = slots && slots.length
         ? `<ul class="cl-slots">${slots.map((s) => `<li><span class="mono">${esc(s.time)} ${esc(C.tzName)}</span> <b>${esc(s.dj)}</b></li>`).join("")}</ul>`
-        : `<p>Lineup and set times announced in Discord.</p>`;
+        : `<ul class="cl-slots"><li><span class="mono">Set times</span> <b>TBA</b></li><li><span class="mono">DJs</span> <b>TBA</b></li></ul>`;
       return `<article class="card"><span class="tag volt">${esc(SEASON_BY_MONTH[d.getUTCMonth()])}</span><h3>${esc(SEASON_BY_MONTH[d.getUTCMonth()])} Season</h3><p class="mono" style="font-size:.88rem">${esc(fmt.format(d))}</p>${list}</article>`;
     }).join("");
     document.getElementById("cl-note").textContent = "Where: " + C.world + ". Set times are listed in Eastern Time.";
