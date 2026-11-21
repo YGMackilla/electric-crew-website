@@ -26,6 +26,13 @@
     <div class="stack" id="upcoming"><div class="empty">Loading events…</div></div>
   </div></section>
 
+  <section class="block" id="celestial"><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Monthly</span><h2>Celestial Lounge Horoscope DJ Sets</h2><p class="lede">Every first Saturday of the month, we light up Celestial Lounge in VRChat with a sign-of-the-season DJ night. Here is the schedule and set list.</p></div>
+    <div class="grid cols-3" id="cl-list"></div>
+    <p class="mono" style="margin-top:18px;font-size:.88rem" id="cl-note"></p>
+    <div class="row" style="margin-top:14px;gap:12px"><a class="btn primary small" id="cl-world" href="#" target="_blank" rel="noopener">Open Celestial Lounge</a><a class="btn dark small" href="bookings.html">Book a DJ set</a></div>
+  </div></section>
+
   <section class="block alt"><div class="wrap">
     <div class="section-head"><span class="eyebrow">Every week</span><h2>Regular nights</h2></div>
     <div class="grid cols-4" id="nights"></div>
@@ -39,7 +46,7 @@
 </main>
 <script type="module">
   import { esc, fmtDate, fmtTime, tzLabel, localTz } from "./js/site.js";
-  import { NIGHTS, RECURRING, HISTORY } from "./js/content.js";
+  import { NIGHTS, RECURRING, HISTORY, CELESTIAL, SEASON_BY_MONTH, upcomingFirstSaturdays } from "./js/content.js";
   import { CONFIGURED, subscribe, isUpcoming } from "./js/booking-data.js";
   document.getElementById("demo").hidden = CONFIGURED;
   const tz = (() => { try { return localStorage.getItem("ec_tz") || localTz(); } catch (e) { return localTz(); } })();
@@ -64,6 +71,20 @@
 
   document.getElementById("nights").innerHTML = NIGHTS.map((n) => `<article class="card night" style="--accent:${n.accent}"><div class="band"></div><div class="body"><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p><span class="when" style="margin-top:auto">${esc(n.when)}</span></div></article>`).join("");
   document.getElementById("recurring").innerHTML = RECURRING.map((e) => `<article class="card"><span class="tag volt">${esc(e.tag)}</span><h3>${esc(e.title)}</h3><p class="mono" style="font-size:.88rem">${esc(e.when)}</p><p>${esc(e.where)}</p></article>`).join("");
+
+  (() => {
+    const C = CELESTIAL, fmt = new Intl.DateTimeFormat(undefined, { timeZone: "UTC", weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    document.getElementById("cl-world").href = C.worldUrl;
+    document.getElementById("cl-list").innerHTML = upcomingFirstSaturdays(6).map((d, i) => {
+      const key = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0");
+      const slots = C.slots[key];
+      const list = slots && slots.length
+        ? `<ul class="cl-slots">${slots.map((s) => `<li><span class="mono">${esc(s.time)} ${esc(C.tzName)}</span> <b>${esc(s.dj)}</b></li>`).join("")}</ul>`
+        : `<p>Lineup and set times announced in Discord.</p>`;
+      return `<article class="card"><span class="tag ${i === 0 ? "good" : "volt"}">${i === 0 ? "Next up" : esc(SEASON_BY_MONTH[d.getUTCMonth()])}</span><h3>${esc(SEASON_BY_MONTH[d.getUTCMonth()])} Season</h3><p class="mono" style="font-size:.88rem">${esc(fmt.format(d))}</p>${list}</article>`;
+    }).join("");
+    document.getElementById("cl-note").textContent = "Where: " + C.world + ". Set times are listed in Eastern Time.";
+  })();
   document.getElementById("history").innerHTML = HISTORY.map((h) => `<li><div class="yr">${h.year}</div><div><h3>${esc(h.title)}</h3><p>${esc(h.detail)}</p></div></li>`).join("");
 </script>
 </body></html>

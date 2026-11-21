@@ -283,3 +283,7 @@ input[type="email"] { font: inherit; color: var(--ink); background: var(--surfac
 .banner-band { margin: 0; border-radius: 28px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: #07060d; position: relative; }
 .banner-band::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: var(--pride); z-index: 1; }
 .banner-band img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+
+/* Celestial Lounge schedule */
+.cl-slots { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.cl-slots li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }

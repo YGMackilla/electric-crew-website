@@ -6,6 +6,7 @@ export const NIGHTS = [
   { id: "karaoke", title: "Karaoke Night", tagline: "Sing your heart out.", when: "Every Thursday", text: "Grab the mic, cheer on the crew and make a little noise together in VRChat.", accent: "#f0368f" },
 ];
 export const RECURRING = [
+  { title: "Celestial Lounge Horoscope DJ Sets", when: "First Saturday of every month", where: "VRChat, Celestial Lounge", tag: "Monthly" },
   { title: "Nightly hangouts and gameplay", when: "Every night, 8:30 PM PST", where: "VRChat", tag: "Recurring" },
   { title: "5th Annual Metaverse Pride", when: "Date to be announced", where: "VRChat, Sunset Voyage", tag: "Annual" },
   { title: "VRC+ group safe spaces", when: "Open 24/7", where: "VRChat", tag: "Community" },
@@ -39,3 +40,27 @@ export const CREW = [
   { handle: "DJ Pandatron", name: "DJ Pandatron", role: "Resident DJ", note: "Keeping the vibes electric every night.", c: "#b9f5c8" },
   { handle: "DJ Mackilla", name: "DJ Mackilla", role: "Resident DJ", note: "Closing sets and opening hearts.", c: "#d4c6ff" },
 ];
+
+// Celestial Lounge horoscope DJ sets: first Saturday of every month.
+// Fill in `slots` once a night is booked: [{ time: "9:00 PM", dj: "DJ Name" }, ...] (times are in `tz`).
+// Leave a month out of `slots` and the page shows "Lineup and set times announced in Discord".
+export const CELESTIAL = {
+  name: "Celestial Lounge Horoscope DJ Sets",
+  world: "Celestial Lounge, VRChat",
+  worldUrl: "https://vrchat.com/home/world/wrld_fb64a2f5-606a-49a4-87be-a871bd231cd2",
+  tz: "America/New_York",
+  tzName: "ET",
+  doors: "",
+  slots: {
+    // "2026-12": [{ time: "9:00 PM", dj: "TBA" }, { time: "10:00 PM", dj: "TBA" }],
+  },
+};
+export const SIGNS = ["Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius"];
+// Sign of the season by month; Dec 22 to Jan 19 is Capricorn, so the first Saturday of Jan is Capricorn, Dec is Sagittarius.
+export const SEASON_BY_MONTH = ["Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius"];
+export function firstSaturday(y, m) { const d = new Date(Date.UTC(y, m, 1)); d.setUTCDate(1 + ((6 - d.getUTCDay() + 7) % 7)); return d; }
+export function upcomingFirstSaturdays(n = 6, now = new Date()) {
+  const out = []; let y = now.getUTCFullYear(), m = now.getUTCMonth();
+  while (out.length < n) { const d = firstSaturday(y, m); if (d.getTime() + 864e5 > now.getTime()) out.push(d); m++; if (m > 11) { m = 0; y++; } }
+  return out;
+}
