@@ -56,7 +56,7 @@ export const CELESTIAL = {
       { time: "11:00 PM", dj: "Bosko" },
       { time: "12:00 AM", dj: "TheStonedGinger" },
       { time: "1:00 AM", dj: "Pandatron" },
-      { time: "2:00 AM", dj: "Innco" },
+      { time: "2:00 AM", dj: "DJ Raver Teddy" },
     ],
   },
   // Optional per-month details: title, genres, hours, poster.
@@ -65,7 +65,7 @@ export const CELESTIAL = {
       title: "Electric Crew: Sagittarius Trance",
       genres: "Progressive house / DnB / Melodic / Trance",
       hours: "11 PM to 3 AM EST · 4 x 60 min · PC + Quest",
-      poster: "assets/celestial-dec-2026.webp",
+      poster: "assets/celestial-dec-2026.webp?v=2",
     },
   },
 };
